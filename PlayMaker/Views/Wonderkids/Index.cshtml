@@ -1,0 +1,103 @@
+﻿@model Tuple<WonderkidsFilter, List<WonderkidsPlayerData>>
+@{
+    ViewBag.Title = "Wonderkids AI";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<!-- (Filtreleme ve tablo kodların burada aynı kalıyor) -->
+<div class="container mt-4">
+    <!-- Filtreleme Seçenekleri -->
+    <div class="card shadow-sm border-0 p-4">
+        <h4 class="text-center mb-4">Wonderkids Filter</h4>
+        <form method="post" asp-action="Index" asp-controller="Wonderkids">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Mevki:</label>
+                    <select asp-for="Item1.Position" class="form-select" name="position" asp-items="ViewBag.Positions"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Yaş Grubu:</label>
+                    <select asp-for="Item1.AgeGroup" class="form-select" name="ageGroup" asp-items="ViewBag.AgeGroups"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Potential AI:</label>
+                    <select asp-for="Item1.Potential" class="form-select" name="potential" asp-items="ViewBag.Potentials"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Sıralama:</label>
+                    <select asp-for="Item1.Order" class="form-select" name="order" asp-items="ViewBag.Orders"></select>
+                </div>
+
+                <div class="col-12 text-center mt-3">
+                    <button class="btn btn-success px-4">Göster</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Standings Tablosu -->
+    <div class="card shadow-lg border-0 p-5 mt-4 player-list-card">
+        <h4 class="text-center mb-4"><i class="bi bi-person-lines-fill"></i> Wonderkids Standings</h4>
+        <div class="table-responsive">
+            <table class="table table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Age</th>
+                        <th>Club</th>
+                        <th>Overall</th>
+                        <th>Potential</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Item2.Any())
+                    {
+                        foreach (var player in Model.Item2)
+                        {
+                            <tr class="player-row">
+
+                                <td>@player.Name_2023</td>
+                                <td>@player.Role</td>
+                                <td>@player.Age_2024</td>
+                                <td>@player.Club_2023</td>
+                                <td>@player.Feature_Score_2023</td>
+                                <td>@player.Predicted_2024_Growth</td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9">No players found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Sayfalama" class="text-center mt-3">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" href="?page=@(currentPage - 1)">Önceki</a>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" href="?page=@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" href="?page=@(currentPage + 1)">Sonraki</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

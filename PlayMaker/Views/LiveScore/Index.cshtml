@@ -1,0 +1,139 @@
+﻿@{
+    ViewBag.Title = "Live Score";
+}
+
+@model MatchData
+
+<div class="container mt-4 mb-5">
+    <div class="text-center mb-4">
+        <span class="badge bg-danger bg-opacity-10 text-danger fs-6 px-3 py-2 rounded-pill pulsating-badge">
+            <i class="bi bi-broadcast me-2"></i>LIVE MATCHES
+        </span>
+        <h2 class="mt-3 fw-bold hero-title" style="font-size: 2.5rem;">Match Center</h2>
+    </div>
+
+    @if (Model != null && Model.Stages != null && Model.Stages.Any())
+    {
+        foreach (var stage in Model.Stages)
+        {
+            <div class="league-section mb-5">
+                <!-- League Header -->
+                <div class="d-flex align-items-center gap-3 mb-3 ps-2 border-start border-4 border-primary">
+                    <h4 class="mb-0 fw-bold text-dark">@stage.Cnm</h4>
+                    <span class="text-muted fs-5">|</span>
+                    <span class="text-muted fw-semibold">@stage.Snm</span>
+                </div>
+
+                <div class="row g-4">
+                    @foreach (var match in stage.Events)
+                    {
+                        var homeTeam = match.T1[0];
+                        var awayTeam = match.T2[0];
+
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden bg-white">
+                                <!-- Match Status Header -->
+                                <div class="card-header bg-light border-0 py-1 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        @if(match.Eps != "FT" && match.Eps != "NS") {
+                                            <span class="spinner-grow spinner-grow-sm text-danger me-1" style="width: 0.5rem; height: 0.5rem;" role="status"></span>
+                                            <span class="text-danger fw-bold" style="font-size: 0.7rem;">LIVE</span>
+                                        } else {
+                                            <span class="text-muted fw-bold" style="font-size: 0.7rem;">@match.Eps</span>
+                                        }
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.7rem;">@DateTime.Now.ToShortDateString()</small>
+                                </div>
+
+                                <div class="card-body p-3">
+                                    <div class="row align-items-center mb-3">
+                                        <!-- Home Team -->
+                                        <div class="col-4 text-center">
+                                            <div class="fw-bold text-dark mb-1 text-truncate" style="font-size: 0.9rem;">@homeTeam.Nm</div>
+                                            <!-- Placeholder for logo if needed -->
+                                        </div>
+
+                                        <!-- Score -->
+                                        <div class="col-4 text-center">
+                                            <div class="d-inline-flex align-items-center justify-content-center bg-dark text-white rounded-pill px-3 py-1 shadow">
+                                                <span class="fw-bold fs-6">@match.Tr1</span>
+                                                <span class="mx-1 opacity-50 small">-</span>
+                                                <span class="fw-bold fs-6">@match.Tr2</span>
+                                            </div>
+                                            <div class="text-danger fw-bold mt-1" style="font-size: 0.7rem;">
+                                                @if(match.Eps != "FT" && match.Eps != "NS") {
+                                                    <span>@match.Eps'</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Away Team -->
+                                        <div class="col-4 text-center">
+                                            <div class="fw-bold text-dark mb-1 text-truncate" style="font-size: 0.9rem;">@awayTeam.Nm</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fan Vote Section -->
+                                    <div class="bg-light bg-opacity-50 p-2 rounded-3 mt-2">
+                                        <p class="text-center text-muted text-uppercase fw-bold mb-1 ls-1" style="font-size: 0.65rem;">Fan Prediction</p>
+                                        <form method="post" asp-controller="LiveScore" asp-action="Vote" class="d-flex gap-1 justify-content-center">
+                                            <input type="hidden" name="pollId" value="@match.PollId" />
+                                            
+                                            <button type="submit" name="vote" value="1" class="btn btn-outline-success btn-sm flex-grow-1 position-relative overflow-hidden p-1" style="max-width: 100px;">
+                                                <span class="d-block fw-bold" style="font-size: 0.8rem;">1</span>
+                                                <div class="progress mt-1" style="height: 2px;">
+                                                    <div class="progress-bar bg-success" style="width: @(match.Vote1)%"></div>
+                                                </div>
+                                            </button>
+
+                                            <button type="submit" name="vote" value="X" class="btn btn-outline-secondary btn-sm flex-grow-1 position-relative overflow-hidden p-1" style="max-width: 60px;">
+                                                <span class="d-block fw-bold" style="font-size: 0.8rem;">X</span>
+                                                 <div class="progress mt-1" style="height: 2px;">
+                                                    <div class="progress-bar bg-secondary" style="width: @(match.VoteX)%"></div>
+                                                </div>
+                                            </button>
+
+                                            <button type="submit" name="vote" value="2" class="btn btn-outline-primary btn-sm flex-grow-1 position-relative overflow-hidden p-1" style="max-width: 100px;">
+                                                <span class="d-block fw-bold" style="font-size: 0.8rem;">2</span>
+                                                 <div class="progress mt-1" style="height: 2px;">
+                                                    <div class="progress-bar bg-primary" style="width: @(match.Vote2)%"></div>
+                                                </div>
+                                            </button>
+                                        </form>
+                                        <div class="text-center mt-1 d-flex justify-content-center gap-2 text-muted" style="font-size: 0.7rem;">
+                                            <span><i class="bi bi-person-check me-1"></i>@((match.Vote1 + match.VoteX + match.Vote2))</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h3 class="text-muted fw-normal">No live matches currently available.</h3>
+            <p class="text-secondary">Please check back later for upcoming fixtures.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .pulsating-badge {
+        animation: pulse-red 2s infinite;
+    }
+    .ls-1 {
+        letter-spacing: 1px;
+    }
+    @@keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+</style>

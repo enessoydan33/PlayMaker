@@ -1,0 +1,57 @@
+﻿@model List<NewsItem>
+
+<div class="news-widget p-3">
+    <div class="d-flex flex-column gap-3">
+        @foreach (var news in Model.Take(5))
+        {
+            <a href="@news.PageUrl" target="_blank" class="text-decoration-none group-hover">
+                <div class="d-flex gap-3 align-items-center p-2 rounded-3 hover-bg-light transition-all">
+                    <!-- Image -->
+                    <div style="flex-shrink: 0; width: 80px; height: 80px;">
+                        <img src="@news.ImageUrl" class="w-100 h-100 rounded-3 shadow-sm border" 
+                             style="object-fit: cover;" 
+                             alt="News Image" 
+                             onerror="this.src='https://via.placeholder.com/80/e2e8f0/64748b?text=News'">
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="flex-glow-1">
+                        <h6 class="mb-1 text-dark fw-bold text-clamp-2" style="font-size: 0.95rem; line-height: 1.4;">
+                            @news.Title
+                        </h6>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2" style="font-size: 0.7rem;">News</span>
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                @news.SourceStr
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+    
+    <div class="text-center mt-3 pt-3 border-top">
+        <a asp-controller="Transfer" asp-action="Index" class="btn btn-sm btn-outline-primary rounded-pill px-4 fw-semibold">
+            View All News
+        </a>
+    </div>
+</div>
+
+<style>
+    .text-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .hover-bg-light:hover {
+        background-color: #f8fafc;
+    }
+    .group-hover:hover h6 {
+        color: var(--primary-color) !important;
+    }
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+</style>

@@ -1,0 +1,79 @@
+## ========================
+## .NET / ASP.NET Core
+## ========================
+
+# Build outputs
+bin/
+obj/
+out/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.ncb
+*.opendb
+*.VC.db
+*.VC.opendb
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/packages/repositories.config
+.nuget/
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# Publish output
+**/publish/
+PublishProfiles/
+
+# Migrations (optional — sil bu satırı eğer migration'ları commit etmek istiyorsan)
+# Migrations/
+
+## ========================
+## Sensitive / Secret Files
+## ========================
+
+# API keys, connection strings — ASLA GitHub'a yükleme
+appsettings.json
+appsettings.*.json
+!appsettings.Example.json
+
+# User-specific secrets
+secrets.json
+*.pfx
+*.pem
+*.key
+
+## ========================
+## Uploads / User Content
+## ========================
+
+# Kullanıcı yüklediği dosyalar
+**/wwwroot/uploads/
+
+## ========================
+## OS Files
+## ========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+## ========================
+## Logs & Temp
+## ========================
+
+*.log
+*.tmp
+*.temp

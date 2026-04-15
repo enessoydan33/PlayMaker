@@ -1,0 +1,84 @@
+﻿@model MatchData
+
+<div class="score-widget p-3">
+    <div class="text-center mb-3">
+        <div class="badge bg-danger bg-opacity-10 text-danger pulsating-badge px-3 py-2 rounded-pill">
+            <i class="bi bi-broadcast me-1"></i> LIVE MATCHES
+        </div>
+    </div>
+
+    @if (Model != null && Model.Stages != null && Model.Stages.Any())
+    {
+        @foreach (var stage in Model.Stages)
+        {
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2 px-2">
+                    <span class="badge bg-light text-dark border">@stage.Cnm</span>
+                    <small class="text-muted fw-bold">@stage.Snm</small>
+                </div>
+
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var match in stage.Events)
+                    {
+                        var homeTeam = match.T1[0];
+                        var awayTeam = match.T2[0];
+                        
+                        <div class="match-item p-3 rounded-3 bg-light border-0 shadow-sm transition-hover">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Home Team -->
+                                <div class="text-end" style="width: 35%;">
+                                    <span class="fw-semibold text-dark d-block text-truncate">@homeTeam.Nm</span>
+                                </div>
+
+                                <!-- Score -->
+                                <div class="text-center bg-white rounded-pill px-3 py-1 shadow-sm border" style="min-width: 80px;">
+                                    <span class="fw-bold fs-5 text-primary">@match.Tr1</span>
+                                    <span class="text-muted mx-1">-</span>
+                                    <span class="fw-bold fs-5 text-primary">@match.Tr2</span>
+                                </div>
+
+                                <!-- Away Team -->
+                                <div class="text-start" style="width: 35%;">
+                                    <span class="fw-semibold text-dark d-block text-truncate">@awayTeam.Nm</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Match Time/Status -->
+                            <div class="text-center mt-2">
+                                <small class="text-danger fw-bold" style="font-size: 0.75rem;">
+                                    @match.Eps
+                                    @if(match.Eps != "FT" && match.Eps != "NS") {
+                                        <span class="spinner-grow spinner-grow-sm text-danger ms-1" style="width: 6px; height: 6px;" role="status"></span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5 text-muted">
+            <i class="bi bi-calendar-x fs-1 mb-2 opacity-50"></i>
+            <p>No matches available right now.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .transition-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    }
+    .pulsating-badge {
+        animation: pulse-red 2s infinite;
+    }
+    @@keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+</style>
+

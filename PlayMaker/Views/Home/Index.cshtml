@@ -1,0 +1,55 @@
+@{
+    ViewBag.Title = "Home";
+}
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Dominate the Field</h1>
+        <p class="hero-subtitle">The ultimate platform for football enthusiasts. Track leagues, scout wonderkids, and stay updated with live scores.</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a asp-controller="Market" asp-action="Index" class="btn btn-primary-custom">Explore Market</a>
+            <a asp-controller="Wonderkids" asp-action="Index" class="btn btn-outline-custom">AI Scout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        <!-- League Standings -->
+        <div class="col-lg-4 col-md-6">
+            <div class="glass-card h-100">
+                <div class="card-header-custom">
+                    <i class="bi bi-trophy-fill text-warning"></i> League Standings
+                </div>
+                <div class="card-body-custom p-0" style="overflow-y: auto; max-height: 600px;">
+                    @await Component.InvokeAsync("League", new { SelectedLeague = Context.Request.Query["SelectedLeague"].ToString() })
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Score -->
+        <div class="col-lg-4 col-md-6">
+            <div class="glass-card h-100">
+                 <div class="card-header-custom">
+                    <i class="bi bi-broadcast text-danger"></i> Live Scores
+                </div>
+                <div class="card-body-custom p-0" style="overflow-y: auto; max-height: 600px;">
+                    @await Component.InvokeAsync("Score")
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest News -->
+         <div class="col-lg-4 col-md-12">
+            <div class="glass-card h-100">
+                 <div class="card-header-custom">
+                    <i class="bi bi-newspaper text-info"></i> Latest News
+                </div>
+                <div class="card-body-custom p-0">
+                    @await Component.InvokeAsync("News")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

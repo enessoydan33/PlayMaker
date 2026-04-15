@@ -1,0 +1,119 @@
+@{
+    ViewBag.Title = "Market - Futbolcu Arama";
+}
+
+@model ApiResponse
+
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<div class="container mt-5">
+    @if (ViewBag.MarketApiErrors != null)
+    {
+        var errs = ViewBag.MarketApiErrors as IEnumerable<string>;
+        if (errs != null && errs.Any())
+        {
+            <div class="alert alert-warning">
+                <div><strong>Market API Debug</strong> (API sorunu mu değil mi görmek için):</div>
+                <ul class="mb-0">
+                    @foreach (var e in errs.Where(x => !string.IsNullOrWhiteSpace(x)).Take(5))
+                    {
+                        <li>@e</li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+    <!-- Futbolcu Arama Başlığı -->
+    <div class="card search-card shadow-lg border-0 p-5 text-center">
+        <h2 class="mb-4"><i class="bi bi-search"></i> Search Player</h2>
+
+        <!-- Arama Kutusu -->
+        <form method="get"  asp-action="Search" asp-controller="Market" id="searchForm" class="d-flex justify-content-center mb-4">
+            <input id="playerName" name="playerName" class="form-control search-input me-2" type="search" placeholder="Player Name" aria-label="Search">
+            <button class="btn btn-success px-4 search-btn" type="submit">
+                <i class="bi bi-search"></i> 
+            </button>
+        </form>
+      
+
+    <!-- Futbolcu Listesi -->
+    <div class="card shadow-lg border-0 p-5 mt-5 player-list-card">
+        <h4 class="text-center mb-4"><i class="bi bi-person-lines-fill"></i> Players Searched </h4>
+        <div class="table-responsive">
+            <table class="table table-hover text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Age</th>
+                        <th>Citizenship</th>
+                        <th>Club</th>
+                        <th>Market Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  @if (Model.Data.Count != 0)
+                  { @foreach (var player in Model.Data.Values.Take(5))
+                    {
+                        <tr class="player-row">
+                            <td>
+                                <img src="@player.PlayerImage" class="rounded-circle player-img"
+                                     onerror="this.src='https://via.placeholder.com/50';">
+                            </td>
+                            <td>@player.PlayerName</td>
+                            <td>@player.playerMainPosition</td>
+                            <td>@player.Age</td>
+                            <td>@player.BirthplaceCountry 
+                            <img src="@player.BirthplaceCountryImage" class="player-img2"
+                            onerror="this.src='https://via.placeholder.com/9000';"></td>
+                            <td>@player.Club</td>
+                            @if (player.MarketValue != null && player.MarketValue.Contains("."))
+                            {
+                                <td>@player.MarketValue M €</td>
+                            }
+                            else if(player.MarketValue=="-")
+                            {
+                                <td>0 M € </td>
+                            }
+                            else
+                            {
+                                <td>@player.MarketValue K €</td>
+                            }
+
+
+                        </tr>
+                    }
+
+                  }
+                  
+                  else
+                  {
+                <tr class="player-row">
+                    <td>
+                        <img src="" class="rounded-circle player-img"
+                             onerror="this.src='https://via.placeholder.com/50';">
+                    </td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                </tr>
+
+
+                  }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

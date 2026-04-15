@@ -1,0 +1,50 @@
+@model List<Standings>
+
+<form method="get" class="p-3 bg-light border-bottom">
+    <div class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 fw-bold small text-muted">Select League:</label>
+        <select class="form-select form-select-sm border-0 bg-white fw-bold" name="SelectedLeague" asp-items="ViewBag.LiglerStd" onchange="this.form.submit()" style="cursor: pointer; max-width: 200px;">
+        </select>
+    </div>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-borderless align-middle mb-0">
+            <thead class="bg-light sticky-top" style="z-index: 1;">
+                <tr class="text-secondary small text-uppercase">
+                    <th class="ps-4">Pos</th>
+                    <th>Team</th>
+                    <th class="text-center">P</th>
+                    <th class="text-center">W</th>
+                    <th class="text-center">L</th>
+                    <th class="text-center fw-bold pe-4">Pts</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var team in Model)
+                {
+                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <td class="ps-4 text-muted fw-semibold">@team.Rank</td>
+                        <td>
+                            <span class="fw-bold text-dark">@team.Team</span>
+                        </td>
+                        <td class="text-center text-muted">@team.Play</td>
+                        <td class="text-center text-success">@team.Win</td>
+                        <td class="text-center text-danger">@team.Lose</td>
+                        <td class="text-center fw-bold text-dark pe-4">@team.Point</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-exclamation-circle fs-1 d-block mb-3 opacity-50"></i>
+        <h6>No standings available</h6>
+        <p class="small mb-0">Data could not be loaded for this league.</p>
+    </div>
+}
