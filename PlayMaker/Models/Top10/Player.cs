@@ -5,8 +5,7 @@ namespace PlayMaker.Models.Top10
 {
     public class Player
     {
-        // Transfermarkt endpoints typically use "id" (lowercase) in JSON.
-        // We still set this manually in Top10Players as well.
+        // Legacy JSON property name kept for Market deserialization compatibility.
         [JsonProperty("id")]
         public int ID { get; set; }
 

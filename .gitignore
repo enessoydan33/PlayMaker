@@ -44,7 +44,10 @@ PublishProfiles/
 ## Sensitive / Secret Files
 ## ========================
 
-# API keys, connection strings — ASLA GitHub'a yükleme
+# API keys, connection strings — never commit real secrets
+.env
+.env.*
+!.env.example
 appsettings.json
 appsettings.*.json
 !appsettings.Example.json

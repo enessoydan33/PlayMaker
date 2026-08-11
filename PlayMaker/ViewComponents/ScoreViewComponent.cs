@@ -2,50 +2,40 @@
 using Newtonsoft.Json;
 using PlayMaker.Api;
 using PlayMaker.Models.LiveScoreModel;
-using System.ComponentModel;
 
 namespace PlayMaker.ViewComponents
 {
-    public class ScoreViewComponent:ViewComponent
+    public class ScoreViewComponent : ViewComponent
     {
-
         private readonly LiveScoreServices _liveScoreServices;
+        private readonly ILogger<ScoreViewComponent> _logger;
 
-        public ScoreViewComponent(LiveScoreServices liveScoreServices)
+        public ScoreViewComponent(LiveScoreServices liveScoreServices, ILogger<ScoreViewComponent> logger)
         {
             _liveScoreServices = liveScoreServices;
+            _logger = logger;
         }
-
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            string apiResponse = await _liveScoreServices.GetTeamsAsync();
-            if (string.IsNullOrEmpty(apiResponse))
-            {
-                ViewBag.ErrorMessage = "API'den veri alınamadı.";
-                return View();
-            }
-
             try
             {
+                var apiResponse = await _liveScoreServices.GetTeamsAsync();
+                if (string.IsNullOrWhiteSpace(apiResponse))
+                {
+                    ViewBag.ErrorMessage = "Live scores unavailable.";
+                    return View(null);
+                }
+
                 var matchData = JsonConvert.DeserializeObject<MatchData>(apiResponse);
-                
-                // View'e gönder
                 return View(matchData);
-
             }
-            catch (JsonReaderException ex)
+            catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "API'den dönen JSON hatalı: " + ex.Message;
-                Console.WriteLine("API Yanıtı: " + apiResponse);
-                return View();
+                _logger.LogWarning(ex, "ScoreViewComponent failed");
+                ViewBag.ErrorMessage = "Live scores unavailable.";
+                return View(null);
             }
-
-
-
-           
         }
-
-
     }
 }

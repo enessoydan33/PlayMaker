@@ -62,7 +62,7 @@
     {
         <div class="d-flex flex-column align-items-center justify-content-center py-5 text-muted">
             <i class="bi bi-calendar-x fs-1 mb-2 opacity-50"></i>
-            <p>No matches available right now.</p>
+            <p>@(ViewBag.ErrorMessage as string ?? "No matches available right now.")</p>
         </div>
     }
 </div>

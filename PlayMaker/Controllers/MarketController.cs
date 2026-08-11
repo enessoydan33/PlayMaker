@@ -50,8 +50,10 @@ namespace PlayMaker.Controllers
                     return View("Index", new ApiResponse { Data = new Dictionary<int, Player>() });
                 }
 
-                var playersList = playerData.ToObject<List<Player>>();
-                var dict = playersList.ToDictionary(p => p.ID, p => p);
+                var playersList = playerData.ToObject<List<Player>>() ?? new List<Player>();
+                var dict = playersList
+                    .GroupBy(p => p.ID)
+                    .ToDictionary(g => g.Key, g => g.First());
 
                 // JSON verisini deserialize et
                 var topPlayers = new ApiResponse

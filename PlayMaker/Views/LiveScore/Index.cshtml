@@ -12,6 +12,13 @@
         <h2 class="mt-3 fw-bold hero-title" style="font-size: 2.5rem;">Match Center</h2>
     </div>
 
+    @if (!string.IsNullOrWhiteSpace(ViewBag.ErrorMessage as string))
+    {
+        <div class="alert alert-secondary text-center mx-auto" style="max-width: 640px;">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
     @if (Model != null && Model.Stages != null && Model.Stages.Any())
     {
         foreach (var stage in Model.Stages)

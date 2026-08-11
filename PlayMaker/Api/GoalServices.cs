@@ -1,82 +1,55 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
+using PlayMaker.Models;
 
 namespace PlayMaker.Api
 {
+    /// <summary>
+    /// Goal kings provider. CollectAPI /goalKings currently fails (500);
+    /// this service uses SofaScore top-players and returns CollectAPI-shaped JSON
+    /// so LeagueController mapping stays unchanged.
+    /// </summary>
     public class GoalServices
     {
+        private readonly SofaScoreService _sofaScore;
+        private readonly ILogger<GoalServices> _logger;
 
-        private readonly HttpClient _httpClient;
-        private const string API_URL = "https://api.collectapi.com/football/goalKings?league=";
-        private readonly string _apiKey;
-        private readonly IMemoryCache _memoryCache;
-        
-        public GoalServices(HttpClient httpClient, IMemoryCache memoryCache, IConfiguration configuration)
+        public GoalServices(SofaScoreService sofaScore, ILogger<GoalServices> logger)
         {
-            _httpClient = httpClient;
-            _memoryCache = memoryCache;
-            _apiKey = configuration["CollectApi:Key"] ?? "";
+            _sofaScore = sofaScore;
+            _logger = logger;
         }
 
         public async Task<string?> GetLeaguesAsync(string key)
         {
             try
             {
-                string cacheKey = $"goals_{key}";
-                if (_memoryCache.TryGetValue(cacheKey, out string? cachedResult))
+                // PlayMaker league keys are CollectAPI slugs; SofaScore Super Lig is tournament 52.
+                // For other leagues we still attempt Super Lig scorers when key is super-lig / empty,
+                // otherwise return empty to avoid wrong data.
+                var isSuperLig = string.IsNullOrWhiteSpace(key)
+                                 || key.Equals("super-lig", StringComparison.OrdinalIgnoreCase);
+
+                if (!isSuperLig)
                 {
-                    return cachedResult;
+                    _logger.LogInformation("Goal kings via SofaScore currently mapped for Super Lig only (key={Key})", key);
+                    return "{\"result\":[]}";
                 }
 
-                string apiurl = $"{API_URL}{key}";
-                Console.WriteLine($"[GoalServices] URL = {apiurl}");
-
-                var request = new HttpRequestMessage(HttpMethod.Get, apiurl);
-                // CollectAPI header contains ":" so add without strict validation
-                request.Headers.TryAddWithoutValidation("authorization", _apiKey);
-
-                HttpResponseMessage response = await _httpClient.SendAsync(request);
-                string result = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine($"[GoalServices] Status = {response.StatusCode}");
-                
-                // API başarısız olsa bile 200 dönebilir, içeriği kontrol et
-                if (response.IsSuccessStatusCode)
+                var scorers = await _sofaScore.GetTopScorersAsync(SofaScoreService.SuperLigTournamentId);
+                var result = scorers.Select(s => new
                 {
-                    // JSON formati kontrolu
-                    var trimmed = result.Trim();
-                    if (!trimmed.StartsWith("{") && !trimmed.StartsWith("["))
-                    {
-                         System.Diagnostics.Debug.WriteLine($"GoalServices API Error: Response is not JSON. {result}");
-                         return null;
-                    }
+                    rank = s.Id,
+                    name = s.name,
+                    goals = s.goals,
+                    play = s.play
+                });
 
-                    // JSON içinde "success":false kontrolü yap
-                    if (result.Contains("\"success\":false") || result.Contains("\"success\": false"))
-                    {
-                        System.Diagnostics.Debug.WriteLine($"GoalServices API Error: {result}");
-                        return null;
-                    }
-                    
-                    _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(15));
-                    return result;
-                }
-                else
-                {
-                    Console.WriteLine($"[GoalServices] HTTP Error: {response.StatusCode} - {result}");
-                    return null;
-                }
+                return System.Text.Json.JsonSerializer.Serialize(new { result });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[GoalServices] Exception: {ex}");
+                _logger.LogWarning(ex, "GoalServices SofaScore mapping failed");
                 return null;
             }
         }
-
-
     }
 }

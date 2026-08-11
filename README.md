@@ -1,130 +1,79 @@
 # PlayMaker
 
-PlayMaker, futbol verilerini tek bir platformda toplayan ASP.NET Core MVC tabanli bir web uygulamasidir.  
-Amac, kullanicinin canli skor, lig puani, gol kralligi, transfer market oyuncu verileri, haberler ve yorum gibi modullere tek noktadan erismesini saglamaktir.
+ASP.NET Core MVC football data hub: Super Lig standings, top scorers, player search with market values, football news, auth, and community comments.
 
-## Uygulamanin Amaci
+## Features
 
-- Futbol odakli verileri daginik kaynaklardan toplayip tek bir arayuzde sunmak
-- Kullaniciya guncel lig/gol/oyuncu/haber akisi saglamak
-- Topluluk etkilesimini yorum, like/dislike ve anket ozellikleri ile arttirmak
-- Wonderkids (AI Scout) modulu ile veri destekli oyuncu degerlendirmesi sunmak
+- **League standings** — Turkish Super Lig table (CollectAPI; SofaScore fallback if CollectAPI fails)
+- **Top scorers (Goal Kings)** — Super Lig goal leaders (SofaScore)
+- **Player search / profile** — search players and show profile fields including proposed market value (SofaScore)
+- **Football news** — trending football news feed (RapidAPI)
+- **Auth & profile** — register, login, profile edit (ASP.NET Core Identity + PostgreSQL)
+- **Comments** — league / team / player comments (app database)
+- **Match polls** — vote UI exists; depends on live match data being available
+- **Wonderkids** — local Excel-based player filter/scout UI (EPPlus), not a live API product
 
-## Temel Ozellikler
+**Live Score:** UI is present, but live match data depends on an active third-party API subscription. Without it, the page shows an unavailable state instead of crashing.
 
-- **Lig ekrani:** Lig puan durumu ve gol kralligi verileri
-- **Live Score:** Canli mac listesi ve skor takibi
-- **Market:** Oyuncu arama, profil ve market value goruntuleme
-- **Transfer/Haber:** Futbol haber akislarinin listelenmesi
-- **Wonderkids / AI Scout:** Genc oyuncu filtreleme ve skorlama
-- **Kullanici sistemi:** Kayit, giris, profil duzenleme
-- **Yorum sistemi:** Lig / takim / oyuncu bazli yorumlar
-- **Etkilesim:** Like-dislike ve anket yapisi
+## Tech Stack
 
-## Teknoloji Yigini
+- ASP.NET Core 8 MVC (C#)
+- Entity Framework Core + PostgreSQL (Npgsql)
+- ASP.NET Core Identity
+- Razor Views + Bootstrap
+- MemoryCache
+- EPPlus (Wonderkids Excel import)
+- External APIs via RapidAPI / CollectAPI
 
-- **Backend:** ASP.NET Core MVC (.NET 8)
-- **ORM:** Entity Framework Core
-- **Kimlik dogrulama:** ASP.NET Identity
-- **UI:** Razor Views + Bootstrap
-- **Harici API kaynaklari:**
-  - RapidAPI (Market, LiveScore, SofaScore, Football News)
-  - CollectAPI (League ve GoalKings)
+## External APIs
 
-## Proje Yapisi
+| Feature | Provider |
+|---|---|
+| Standings (primary) | CollectAPI |
+| Standings (fallback) | SofaScore (RapidAPI) |
+| Top scorers | SofaScore (RapidAPI) |
+| Player search / detail / market value | SofaScore (RapidAPI) |
+| Football news | Football News (RapidAPI) |
+| Live scores | LiveScore (RapidAPI) — requires active subscription |
 
-```text
-PlayMaker/
-  Api/                 -> Harici API servis siniflari
-  Controllers/         -> MVC controller'lar
-  Data/                -> DbContext ve repository katmani
-  Entity/              -> Veritabani entity modelleri
-  Models/              -> Uygulama ve API model siniflari
-  ViewComponents/      -> Tekrar kullanilan server-side UI bloklari
-  Views/               -> Razor gorunum dosyalari
-  wwwroot/             -> Statik dosyalar (css, js, image)
-  Program.cs           -> DI, middleware, routing ayarlari
-```
+## Configuration
 
-## Kurulum
+1. Copy `PlayMaker/appsettings.Example.json` → `PlayMaker/appsettings.Development.json`
+2. Fill in your own connection string and API keys
+3. **Do not commit** `appsettings.Development.json` or any file with real secrets
 
-### 1) Gereksinimler
+Required sections:
 
-- .NET SDK 8
-- Bir PostgreSQL veritabani (veya projedeki baglanti yapisina uyumlu ortam)
+- `ConnectionStrings:DefaultConnection`
+- `SofaScoreApi` (`Host`, `Key`)
+- `CollectApi` (`Key` with `apikey ` prefix)
+- `FootballNewsApi` (`Host`, `Key`)
+- `LiveScoreApi` (`Host`, `Key`) — optional until subscribed
 
-### 2) Projeyi acma
+## Setup
 
 ```bash
 git clone <repo-url>
 cd PlayMaker
-```
-
-### 3) Konfigurasyon
-
-`PlayMaker/appsettings.Example.json` dosyasini referans alip kendi local ayarlarini olusturun.
-
-> Guvenlik icin gercek key/connection string degerlerini repoya commit etmeyin.
-
-Ornek alanlar:
-
-- `TransfermarktApi:Host`
-- `TransfermarktApi:Key`
-- `LiveScoreApi:Host`
-- `LiveScoreApi:Key`
-- `SofaScoreApi:Host`
-- `SofaScoreApi:Key`
-- `FootballNewsApi:Host`
-- `FootballNewsApi:Key`
-- `CollectApi:Key` (`apikey ...` formatinda)
-- `ConnectionStrings:DefaultConnection`
-
-### 4) Veritabani migration
-
-```bash
-dotnet ef database update
-```
-
-### 5) Uygulamayi calistirma
-
-```bash
+dotnet restore
+# Create PlayMaker/appsettings.Development.json from the Example file
+dotnet ef database update --project PlayMaker/PlayMaker.csproj
 dotnet run --project PlayMaker/PlayMaker.csproj
 ```
 
-## API ve Secret Yonetimi
+Requirements: .NET SDK 8, PostgreSQL (e.g. Neon).
 
-- `appsettings.json` ve `appsettings.Development.json` dosyalari local kullanim icindir.
-- Production ortami icin environment variable veya secret manager kullanin.
-- API limitlerinden dolayi (ozellikle RapidAPI) Market ve diger modullerde rate limit (429) alinabilir.
+## Screenshots
 
-## Bilinen Operasyonel Notlar
+_Add screenshots here before publishing the repo (Home, League, Market, News)._
 
-- Market modulu dis API rate limitine duyarli oldugu icin cache/throttle davranisi kullanir.
-- CollectAPI endpointleri `league` query parametresi ile kullanilir.
-- API tarafinda donen JSON yapisi degistiginde model map alanlari guncellenmelidir.
+## Limitations
 
-## Hata Ayiklama Ipuclari
+- Live Score needs a paid/active RapidAPI LiveScore subscription
+- SofaScore free plans have monthly request quotas — pages use MemoryCache to reduce calls
+- Goal Kings / SofaScore standings fallback are mapped for Super Lig (`tournamentId = 52`)
+- Wonderkids reads a local Excel file; it is not an AI or live scouting API
 
-- `dotnet build` ile derleme kontrolu yapin
-- Console loglarinda HTTP status/body ciktilarini takip edin
-- 401/403: key veya abonelik problemi
-- 404: endpoint path degisikligi
-- 429: rate limit/quota
+## License
 
-## Gelistirme Kurallari
-
-- Secret degerleri koda hard-code etmeyin
-- Yeni API entegrasyonlarinda:
-  - timeout/retry/caching stratejisi ekleyin
-  - response null ve parse hatalarini ele alin
-  - UI tarafinda kullaniciya anlamli fallback gosterin
-
-## Katki
-
-1. Feature branch acin
-2. Degisiklikleri test edin (`dotnet build`, temel akislari manuel dogrulama)
-3. Pull request acin
-
-## Lisans
-
-Bu proje egitim/gelistirme amacli kullanima yoneliktir. Lisans bilgisi gerekiyorsa depoya `LICENSE` dosyasi ekleyin.
+Educational / portfolio project. Add a `LICENSE` file if you need an explicit license.
